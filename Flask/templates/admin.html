@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Панель администратора
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-tasks me-2"></i>Панель модерации объявлений</h4>
+                </div>
+                <div class="card-body">
+                    {% if pending_items %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Фото</th>
+                                    <th>Информация о вещи</th>
+                                    <th>Пользователь</th>
+                                    <th>Дата подачи</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pending_items %}
+                                <tr>
+                                    <td>
+                                        {% if item.image_filename %}
+                                        <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}"
+                                             class="img-thumbnail rounded"
+                                             style="width: 100px; height: 100px; object-fit: contain;"
+                                             alt="Фото вещи">
+                                        {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded"
+                                             style="width: 100px; height: 100px;">
+                                            <i class="fas fa-image text-muted fa-2x"></i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>Тип:</strong> {{ item.item_type|title }}<br>
+                                        <strong>Корпус:</strong> {{ item.building }}<br>
+                                        <strong>Место:</strong> {{ item.location }}<br>
+                                        <strong>Время:</strong> {{ item.time_found.strftime('%H:%M') }}<br>
+                                        {% if item.description %}
+                                        <strong>Описание:</strong> {{ item.description }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ item.user.username }}</strong><br>
+                                        <small class="text-muted">{{ item.user.email }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical">
+                                            <a href="{{ url_for('approve_item', item_id=item.id) }}"
+                                               class="btn btn-success btn-sm mb-2"
+                                               onclick="return confirm('Одобрить это объявление?')">
+                                                <i class="fas fa-check me-1"></i>Одобрить
+                                            </a>
+                                            <a href="{{ url_for('reject_item', item_id=item.id) }}"
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Отклонить это объявление?')">
+                                                <i class="fas fa-times me-1"></i>Отклонить
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h5 class="text-muted">Все заявки обработаны!</h5>
+                        <p class="text-muted">Новых объявлений на модерации нет.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Статистика -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center py-4">
+                            <h2>{{ pending_items|length }}</h2>
+                            <p class="mb-0">На модерации</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center py-4">
+                            <h2>{{ approved_count }}</h2>
+                            <p class="mb-0">Одобрено</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger">
+                        <div class="card-body text-center py-4">
+                            <h2>{{ rejected_count }}</h2>
+                            <p class="mb-0">Отклонено</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

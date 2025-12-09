@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Загрузить вещь
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Левая колонка - форма -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Добавить найденную вещь</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Flash сообщения -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Форма добавления -->
+                    <form action="/post" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="building" class="form-label"><i class="fas fa-building me-2"></i>Корпус:</label>
+                            <select class="form-select" id="building" name="building" required>
+                                <option value="">Выберите корпус</option>
+                                <option value="Стремянка 20">Стромынка 20</option>
+                                <option value="Проспект Вернадского 86">Проспект Вернадского 86</option>
+                                <option value="Малая Пироговская">Малая Пироговская</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label"><i class="fas fa-map-marker-alt me-2"></i>Где именно нашли:</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="Например, аудитория 205, холл 1 этажа" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="time_found" class="form-label"><i class="fas fa-clock me-2"></i>Время находки:</label>
+                            <input type="time" class="form-control" id="time_found" name="time_found" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="item_type" class="form-label"><i class="fas fa-tag me-2"></i>Вид вещи:</label>
+                            <select class="form-select" id="item_type" name="item_type" required>
+                                <option value="">Выберите вид вещи</option>
+                                <option value="техника">Техника</option>
+                                <option value="документы">Документы</option>
+                                <option value="личные вещи">Личные вещи</option>
+                                <option value="одежда">Одежда</option>
+                                <option value="аксессуары">Аксессуары</option>
+                                <option value="прочее">Прочее</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label"><i class="fas fa-align-left me-2"></i>Описание:</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Опишите вещь подробнее..."></textarea>
+                        </div>
+
+                        <!-- Поле для загрузки фото -->
+                        <div class="mb-4">
+                            <label for="image" class="form-label"><i class="fas fa-camera me-2"></i>Фотография вещи:</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                            <div class="form-text">Можно загрузить изображения в формате JPG, PNG или GIF</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-paper-plane me-2"></i>Добавить вещь на модерацию
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - список добавленных вещей -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-history me-2"></i>Ваши добавленные вещи</h3>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                    <div class="items-list" style="max-height: 600px; overflow-y: auto;">
+                        {% for item in items %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title">{{ item.item_type|title }}</h5>
+                                    <span class="badge
+                                        {% if item.status == 'pending' %}bg-warning
+                                        {% elif item.status == 'approved' %}bg-success
+                                        {% else %}bg-danger{% endif %}">
+                                        {% if item.status == 'pending' %}<i class="fas fa-clock me-1"></i>На модерации
+                                        {% elif item.status == 'approved' %}<i class="fas fa-check me-1"></i>Одобрено
+                                        {% else %}<i class="fas fa-times me-1"></i>Отклонено{% endif %}
+                                    </span>
+                                </div>
+
+                                <!-- Отображение изображения, если оно есть -->
+                                {% if item.image_filename %}
+                                <div class="mb-3 text-center">
+                                    <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}"
+                                         class="img-fluid rounded"
+                                         alt="Фото вещи"
+                                         style="max-height: 200px; width: auto; object-fit: contain;">
+                                </div>
+                                {% endif %}
+
+                                <div class="card-text mb-2">
+                                    <div class="mb-2">
+                                        <i class="fas fa-building me-2 text-primary"></i>
+                                        <strong>Корпус:</strong> {{ item.building }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                        <strong>Место:</strong> {{ item.location }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-clock me-2 text-primary"></i>
+                                        <strong>Время:</strong> {{ item.time_found.strftime('%H:%M') }}
+                                    </div>
+                                    {% if item.description %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-align-left me-2 text-primary"></i>
+                                        <strong>Описание:</strong> {{ item.description }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Добавлено: {{ item.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">У вас пока нет добавленных вещей</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
