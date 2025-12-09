@@ -1,9 +1,483 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Главная страница
+Lost & Found - Бюро находок университета
 {% endblock %}
 
 {% block body %}
-Главная страница
+<!-- Hero Section с фото вуза -->
+<section class="hero-section">
+    <div class="hero-overlay">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Lost&Found</h1>
+                <h1 class="hero-title">Нашли чужую вещь?</h1>
+                <h1 class="hero-title">Потеряли свою?</h1>
+                <p class="hero-subtitle">Мы поможем вещам найти своих владельцев</p>
+                <div class="hero-buttons">
+                    <a href="/post" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Добавить находку
+                    </a>
+                    <a href="/ads" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Найти свою вещь
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Статистика -->
+<!-- Статистика -->
+<section class="stats-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h3 class="stat-number">30+</h3>
+                    <p class="text-muted">Вещей возвращено</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h3 class="stat-number">50+</h3>
+                    <p class="text-muted">Пользователей</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-building fa-3x text-warning mb-3"></i>
+                    <h3 class="stat-number">3</h3>
+                    <p class="text-muted">Корпуса</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                    <h3 class="stat-number">24/7</h3>
+                    <p class="text-muted">Доступ к системе</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Как это работает -->
+<section class="how-it-works py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5 gradient-text">Как это работает?</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-icon">
+                        <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    </div>
+                    <h4>Нашли вещь?</h4>
+                    <p>Сфотографируйте и добавьте объявление с описанием места находки</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-icon">
+                        <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                    </div>
+                    <h4>Модерация</h4>
+                    <p>Администратор проверяет объявление и одобряет его публикацию</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-icon">
+                        <i class="fas fa-bell fa-3x text-warning mb-3"></i>
+                    </div>
+                    <h4>Поиск владельца</h4>
+                    <p>Все пользователи видят объявление в ленте находок</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="step-card text-center p-4">
+                    <div class="step-icon">
+                        <i class="fas fa-handshake fa-3x text-danger mb-3"></i>
+                    </div>
+                    <h4>Возврат</h4>
+                    <p>Владелец связывается с вами и забирает свою вещь</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Последние находки -->
+<section class="latest-items py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h2 class="gradient-text">Свежие находки</h2>
+            <a href="/ads" class="btn btn-primary btn-lg">
+                Посмотреть все <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        {% if latest_items %}
+        <div class="row">
+            {% for item in latest_items[:6] %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 hover-shadow">
+                    {% if item.image_filename %}
+                    <div class="card-img-container" style="height: 250px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}"
+                             class="img-fluid"
+                             alt="Фото вещи"
+                             style="max-height: 100%; width: auto; object-fit: contain;">
+                    </div>
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                         style="height: 200px;">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ item.item_type|title }}</h5>
+                            <span class="badge bg-primary">{{ item.building }}</span>
+                        </div>
+
+                        <div class="card-text mb-3 flex-grow-1">
+                            <div class="mb-2">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                <strong>Место:</strong> {{ item.location }}
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-clock me-2 text-primary"></i>
+                                <strong>Время:</strong> {{ item.time_found.strftime('%H:%M') }}
+                            </div>
+                            {% if item.description %}
+                            <div class="mb-2">
+                                <i class="fas fa-align-left me-2 text-primary"></i>
+                                <strong>Описание:</strong> {{ item.description|truncate(80) }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ item.user.username }}
+                                </small>
+                                <small class="text-muted">
+                                    {{ item.created_at.strftime('%d.%m.%Y') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">Пока нет находок</h4>
+            <p class="text-muted">Будьте первым, кто добавит найденную вещь!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Категории -->
+<section class="categories py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5 gradient-text">Что чаще всего теряют?</h2>
+        <div class="row text-center">
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-laptop fa-3x text-primary mb-3"></i>
+                    <h6>Техника</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-id-card fa-3x text-success mb-3"></i>
+                    <h6>Документы</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-tshirt fa-3x text-warning mb-3"></i>
+                    <h6>Одежда</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-key fa-3x text-danger mb-3"></i>
+                    <h6>Ключи</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-book fa-3x text-info mb-3"></i>
+                    <h6>Канцелярия</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 mb-4">
+                <div class="category-item">
+                    <i class="fas fa-mobile-alt fa-3x text-secondary mb-3"></i>
+                    <h6>Телефоны</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="cta-section py-5 text-center">
+    <div class="container">
+        <h2 class="mb-4">Готовы помочь или найти?</h2>
+        <p class="lead mb-4">Присоединяйтесь к сообществу добрых людей, которые возвращают потерянное</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            {% if not session.user_id %}
+            <a href="/register" class="btn btn-primary btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Присоединиться
+            </a>
+            {% endif %}
+            <a href="/post" class="btn btn-success btn-lg">
+                <i class="fas fa-plus me-2"></i>Добавить находку
+            </a>
+            <a href="/ads" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-list me-2"></i>Смотреть объявления
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Футер команды -->
+<footer class="team-footer py-4 text-center bg-dark text-white">
+    <div class="container">
+        <p class="mb-2">Разработано студентами для студентов</p>
+        <p class="mb-0">
+            <small>
+                <i class="fas fa-code me-1"></i>Проект Lost&Found
+                <span class="mx-2">|</span>
+                <i class="fas fa-users me-1"></i>Команда: Pulkov Maksim, Onokhin Ivan, Lyapunov Egor, Melchakov Vladislav
+            </small>
+        </p>
+    </div>
+</footer>
+
+<style>
+/* Простой вариант: переход к основному фону body */
+.hero-section {
+    position: relative;
+    min-height: 85vh;
+    background-image:
+        linear-gradient(to bottom,
+            rgba(0, 45, 90, 0.9) 0%,          /* Верх: цвет вуза */
+            rgba(0, 45, 90, 0.7) 20%,         /* Осветление */
+            rgba(245, 247, 250, 0.4) 40%,     /* Переход к #f5f7fa */
+            rgba(245, 247, 250, 0.8) 70%,     /* Почти #f5f7fa */
+            #f5f7fa 100%                      /* Низ: точно #f5f7fa */
+        ),
+        url("{{ url_for('static', filename='images/university.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    color: white;
+    margin-top: -1rem;
+}
+
+.hero-overlay {
+    width: 100%;
+    padding: 4rem 0;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-buttons .btn {
+    min-width: 200px;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* Для логотипа вуза (опционально) */
+.university-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    max-width: 120px;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Stats Section */
+.stat-card {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    background: white;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+}
+
+/* How It Works */
+.step-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    height: 100%;
+}
+
+.step-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+
+.step-number {
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Categories */
+.category-item {
+    padding: 1rem;
+    transition: var(--transition);
+}
+
+.category-item:hover {
+    transform: scale(1.1);
+}
+
+.category-item i {
+    transition: var(--transition);
+}
+
+.category-item:hover i {
+    transform: rotate(10deg);
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: white;
+}
+
+.cta-section .btn-outline-primary {
+    border-color: white;
+    color: white;
+}
+
+.cta-section .btn-outline-primary:hover {
+    background: white;
+    color: var(--primary-color);
+}
+
+/* Card hover effect */
+.hover-shadow {
+    transition: var(--transition);
+}
+
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* Team Footer */
+.team-footer {
+    background: linear-gradient(135deg, #1f2937, #111827) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+</style>
 {% endblock %}

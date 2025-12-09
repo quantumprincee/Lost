@@ -90,7 +90,9 @@ def is_admin():
 @app.route('/')
 @app.route('/main')
 def main():
-    return render_template('main.html')
+    # Получаем последние 6 одобренных находок для главной
+    latest_items = FoundItem.query.filter_by(status='approved').order_by(FoundItem.created_at.desc()).limit(6).all()
+    return render_template('main.html', latest_items=latest_items)
 
 
 @app.route('/ads')
