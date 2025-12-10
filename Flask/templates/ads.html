@@ -51,6 +51,30 @@
                             <i class="fas fa-clock me-2 text-primary"></i>
                             <strong>Время:</strong> {{ item.time_found.strftime('%H:%M') }}
                         </div>
+
+                        <!-- НОВОЕ: Telegram для связи (кликабельная ссылка) -->
+                        <div class="mb-2">
+                            <i class="fab fa-telegram me-2 text-primary"></i>
+                            <strong>Telegram для связи:</strong>
+                            {% if item.telegram_user %}
+                                {% if item.telegram_user.startswith('@') %}
+                                    <a href="https://t.me/{{ item.telegram_user[1:] }}"
+                                       target="_blank"
+                                       class="text-decoration-none text-primary fw-bold">
+                                        {{ item.telegram_user }}
+                                    </a>
+                                {% else %}
+                                    <a href="https://t.me/{{ item.telegram_user }}"
+                                       target="_blank"
+                                       class="text-decoration-none text-primary fw-bold">
+                                        @{{ item.telegram_user }}
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Не указан</span>
+                            {% endif %}
+                        </div>
+
                         {% if item.description %}
                         <div class="mb-2">
                             <i class="fas fa-align-left me-2 text-primary"></i>
@@ -85,4 +109,23 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Небольшой CSS для улучшения внешнего вида -->
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+a.text-decoration-none:hover {
+    text-decoration: underline !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+}
+</style>
 {% endblock %}

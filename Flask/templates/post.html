@@ -66,6 +66,20 @@
                             <textarea class="form-control" id="description" name="description" rows="3" placeholder="Опишите вещь подробнее..."></textarea>
                         </div>
 
+                        <!-- НОВОЕ ПОЛЕ: Telegram -->
+                        <div class="mb-3">
+                            <label for="telegram_user" class="form-label">
+                                <i class="fab fa-telegram me-2 text-primary"></i>Telegram для связи:
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="telegram_user"
+                                   name="telegram_user"
+                                   placeholder="@username"
+                                   required>
+                            <div class="form-text">Укажите ваш Telegram для связи с владельцем вещи</div>
+                        </div>
+
                         <!-- Поле для загрузки фото -->
                         <div class="mb-4">
                             <label for="image" class="form-label"><i class="fas fa-camera me-2"></i>Фотография вещи:</label>
@@ -134,6 +148,23 @@
                                         <strong>Описание:</strong> {{ item.description }}
                                     </div>
                                     {% endif %}
+
+                                    <!-- НОВОЕ: Telegram для связи -->
+                                    <div class="mb-2">
+                                        <i class="fab fa-telegram me-2 text-primary"></i>
+                                        <strong>Telegram для связи:</strong>
+                                        <span class="badge bg-info">
+                                            {% if item.telegram_user %}
+                                                {% if item.telegram_user.startswith('@') %}
+                                                    {{ item.telegram_user }}
+                                                {% else %}
+                                                    @{{ item.telegram_user }}
+                                                {% endif %}
+                                            {% else %}
+                                                Не указан
+                                            {% endif %}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <small class="text-muted">

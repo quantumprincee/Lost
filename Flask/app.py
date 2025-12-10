@@ -54,6 +54,7 @@ class FoundItem(db.Model):
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
     moderated_at = db.Column(db.TIMESTAMP)  # Когда рассмотрено админом
     moderation_notes = db.Column(db.Text)  # Причина отклонения
+    telegram_user = db.Column(db.String(50), nullable=False)
 
     user = db.relationship('User', backref=db.backref('found_items', lazy=True))
 
@@ -172,6 +173,7 @@ def post():
         time_found_str = request.form['time_found']
         item_type = request.form['item_type']
         description = request.form['description']
+        telegram_user = request.form['telegram_user']
 
         image_filename = None
         if 'image' in request.files:
@@ -201,6 +203,7 @@ def post():
             item_type=item_type,
             description=description,
             image_filename=image_filename,
+            telegram_user=telegram_user,
             status='pending'  # По умолчанию на модерации
         )
 
