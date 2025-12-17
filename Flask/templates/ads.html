@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+ {% extends 'base.html' %}
 
 {% block title %}
 Лента объявлений
@@ -6,15 +6,37 @@
 
 {% block body %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="gradient-text">Найденные вещи</h1>
-        <span class="badge bg-primary fs-6">Всего: {{ items|length }}</span>
+    <!-- Заголовок и поиск в одной строке -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <h1 class="gradient-text mb-0">Найденные вещи</h1>
+        </div>
+
+        <!-- Группа: поле поиска + бейдж "Всего" -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Упрощенное поле поиска -->
+            <div class="search-simple" style="max-width: 350px;">
+                <div class="input-group">
+                    <input type="text"
+                           id="item-search"
+                           class="form-control"
+                           placeholder="Поиск вещей..."
+                           aria-label="Поиск объявлений">
+                    <button class="btn btn-primary" type="button" id="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Бейдж "Всего" теперь справа от поля поиска -->
+            <span class="badge bg-primary fs-6" id="item-counter">Всего: {{ items|length }}</span>
+        </div>
     </div>
 
     {% if items %}
-    <div class="row">
+    <div class="row" id="items-container">
         {% for item in items %}
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4 item-card">
             <div class="card h-100">
                 {% if item.image_filename %}
                 <div class="card-img-container" style="height: 250px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
@@ -52,7 +74,7 @@
                             <strong>Время:</strong> {{ item.time_found.strftime('%H:%M') }}
                         </div>
 
-                        <!-- НОВОЕ: Telegram для связи (кликабельная ссылка) -->
+                        <!-- Telegram для связи -->
                         <div class="mb-2">
                             <i class="fab fa-telegram me-2 text-primary"></i>
                             <strong>Telegram для связи:</strong>
@@ -110,7 +132,6 @@
     {% endif %}
 </div>
 
-<!-- Небольшой CSS для улучшения внешнего вида -->
 <style>
 .card {
     transition: transform 0.2s;
@@ -127,5 +148,190 @@ a.text-decoration-none:hover {
 .badge.bg-info {
     background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
 }
+
+/* Упрощенный поиск */
+.search-simple {
+    min-width: 280px;
+}
+
+.search-simple .input-group {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.search-simple .form-control {
+    border: 1px solid #ddd;
+    border-right: none;
+    padding: 0.6rem 1rem;
+}
+
+.search-simple .btn {
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #6366f1;
+}
+
+/* Скрытые элементы */
+.item-card.hidden {
+    display: none;
+}
+
+/* Анимация */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.item-card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Сообщение о результате поиска */
+.search-result-info {
+    background: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .search-simple {
+        width: 100%;
+        max-width: 100%;
+        min-width: auto;
+    }
+
+    /* На мобильных делаем поле поиска и бейдж в колонку */
+    .d-flex.align-items-center.gap-3 {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 1rem !important;
+    }
+
+    .search-simple {
+        order: 1;
+    }
+
+    #item-counter {
+        order: 2;
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 576px) {
+    .d-flex.align-items-center.gap-3 {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .search-simple {
+        width: 100%;
+    }
+
+    #item-counter {
+        align-self: center;
+        text-align: center;
+        display: block;
+        width: 100%;
+    }
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('item-search');
+    const searchBtn = document.getElementById('search-btn');
+    const itemCards = document.querySelectorAll('.item-card');
+    const itemCounter = document.getElementById('item-counter');
+    const originalItemCount = itemCards.length;
+    const itemsContainer = document.getElementById('items-container');
+
+    // Функция простого поиска
+    function performSimpleSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        if (searchTerm === '') {
+            // Показываем все элементы
+            itemCards.forEach(card => {
+                card.classList.remove('hidden');
+                card.style.display = '';
+            });
+            itemCounter.textContent = `Всего: ${originalItemCount}`;
+
+            // Убираем сообщение о результатах, если есть
+            const resultInfo = document.querySelector('.search-result-info');
+            if (resultInfo) {
+                resultInfo.remove();
+            }
+            return;
+        }
+
+        // Ищем совпадения
+        itemCards.forEach(card => {
+            const cardText = card.textContent.toLowerCase();
+
+            if (cardText.includes(searchTerm)) {
+                card.classList.remove('hidden');
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.classList.add('hidden');
+                card.style.display = 'none';
+            }
+        });
+
+        // Обновляем счетчик
+        itemCounter.textContent = `Найдено: ${visibleCount}`;
+
+        // Добавляем или обновляем сообщение о результате поиска
+        let resultInfo = document.querySelector('.search-result-info');
+        if (!resultInfo) {
+            resultInfo = document.createElement('div');
+            resultInfo.className = 'search-result-info';
+            itemsContainer.parentNode.insertBefore(resultInfo, itemsContainer);
+        }
+
+        if (visibleCount === 0) {
+            resultInfo.innerHTML = `<span class="text-danger">По запросу "${searchTerm}" ничего не найдено</span>`;
+        } else {
+            resultInfo.innerHTML = `<span class="text-success">Найдено ${visibleCount} из ${originalItemCount} объявлений</span>`;
+        }
+    }
+
+    // Обработчики событий
+    searchBtn.addEventListener('click', performSimpleSearch);
+
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            performSimpleSearch();
+        }
+    });
+
+    // Поиск при вводе с задержкой
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSimpleSearch, 500);
+    });
+
+    // Очистка поиска при клике на крестик (если добавить его)
+    searchInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            searchInput.value = '';
+            performSimpleSearch();
+        }
+    });
+
+    // Фокус на поле поиска при загрузке
+    searchInput.focus();
+});
+</script>
 {% endblock %}

@@ -1,17 +1,17 @@
-from flask import Flask, render_template, url_for, request, redirect, flash, session, jsonify
+from flask import Flask, render_template, url_for, request, redirect, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-import os
-import secrets
+from werkzeug.security import generate_password_hash, check_password_hash  #функция по проверке пароля по хешу
+from werkzeug.utils import secure_filename #функция для безопасного создания имени файла
+import os  #создание папок
+import secrets  #создание криптографических безопасных случайных чисел
 from datetime import time, datetime
 
 app = Flask(__name__)
 
-app.secret_key = secrets.token_hex(16)
+app.secret_key = secrets.token_hex(16)  #секретный ключ для шифрования и подписи данных сессии
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:bakugan_76667@127.0.0.1:3306/flask'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #отключает отслеживание изменений объектов SQLAlchemy во Flask
 
 # Настройки для загрузки файлов
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -19,10 +19,6 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 db = SQLAlchemy(app)
-
-# Создаем папку для загрузок, если её нет
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -34,7 +30,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # Новое поле для админа
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
 
     def __repr__(self):
@@ -52,8 +48,8 @@ class FoundItem(db.Model):
     image_filename = db.Column(db.String(255))
     status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
-    moderated_at = db.Column(db.TIMESTAMP)  # Когда рассмотрено админом
-    moderation_notes = db.Column(db.Text)  # Причина отклонения
+    moderated_at = db.Column(db.TIMESTAMP)
+    moderation_notes = db.Column(db.Text)
     telegram_user = db.Column(db.String(50), nullable=False)
 
     user = db.relationship('User', backref=db.backref('found_items', lazy=True))
@@ -62,27 +58,11 @@ class FoundItem(db.Model):
 def init_db():
     with app.app_context():
         db.create_all()
-
-        # Создаем администратора, если его нет
-        admin_user = User.query.filter_by(username='admin').first()
-        if not admin_user:
-            hashed_password = generate_password_hash('admin')
-            admin_user = User(
-                username='admin',
-                email='admin@mail.ru',
-                password=hashed_password,
-                is_admin=True
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("Администратор создан: admin / admin")
-
         print("Таблицы созданы")
 
 
 def is_admin():
-    """Проверка, является ли пользователь администратором"""
-    if 'user_id' not in session:
+    if 'user_id' not in session:   #Является ли пользователь админом
         return False
     user = User.query.get(session['user_id'])
     return user and user.is_admin
@@ -113,7 +93,7 @@ def register():
         hashed_password = generate_password_hash(password)
 
         try:
-            existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+            existing_user = User.query.filter((User.username == username) | (User.email == email)).first() #проверка на существующего пользователя
             if existing_user:
                 flash('Пользователь с таким именем или email уже существует', 'error')
                 return render_template('register.html')
